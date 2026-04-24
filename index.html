@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Bird.ai — Which bird are you?</title>
+    <meta
+      name="description"
+      content="Upload a photo. The Ornithological Oracle will tell you which bird you are and what it says about your soul." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Space+Grotesk:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap"
+      rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="icon"
+      href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="82" font-size="86">🪶</text></svg>' />
+  </head>
+  <body>
+    <div class="paper-grain" aria-hidden="true"></div>
+    <div class="floaters" aria-hidden="true">
+      <span class="floater" style="--x: 8%; --y: 18%; --r: -12deg; --d: 0s">🪶</span>
+      <span class="floater" style="--x: 88%; --y: 12%; --r: 14deg; --d: 1.2s">🌿</span>
+      <span class="floater" style="--x: 6%; --y: 78%; --r: 22deg; --d: 2.1s">🦚</span>
+      <span class="floater" style="--x: 92%; --y: 74%; --r: -18deg; --d: 0.6s">🍃</span>
+      <span class="floater" style="--x: 50%; --y: 4%; --r: 4deg; --d: 1.8s">⭐</span>
+    </div>
+
+    <header class="site-header">
+      <div class="wordmark">
+        <span class="wordmark__stamp">Vol. I · 2026</span>
+        <h1 class="wordmark__title">
+          <span class="wordmark__bird">Bird</span><span class="wordmark__dot">.</span
+          ><span class="wordmark__ai">ai</span>
+        </h1>
+        <p class="wordmark__sub">The Ornithological Oracle</p>
+      </div>
+    </header>
+
+    <main id="app">
+      <!-- VIEW 1: Intro + Upload -->
+      <section class="view view--intro" data-view="intro">
+        <div class="intro__hero">
+          <div class="tape tape--tl"></div>
+          <div class="tape tape--br"></div>
+          <p class="eyebrow">a wildly unscientific field guide to you</p>
+          <h2 class="headline">
+            Which <em>bird</em> are you,<br />
+            <span class="headline__hand">really?</span>
+          </h2>
+          <p class="deck">
+            Upload a photo — a selfie, a vibe, a blurry pic of your cat — and our
+            ornithological oracle will divine the species of your soul. Part field
+            guide, part tarot, entirely serious.
+          </p>
+
+          <form id="upload-form" class="upload" enctype="multipart/form-data">
+            <label class="dropzone" id="dropzone" for="file-input">
+              <div class="dropzone__ring"></div>
+              <div class="dropzone__content">
+                <div class="dropzone__icon">📷</div>
+                <div class="dropzone__title">Drop a photo here</div>
+                <div class="dropzone__or">or tap to choose from your device</div>
+              </div>
+              <input
+                id="file-input"
+                name="file"
+                type="file"
+                accept="image/*"
+                capture="user"
+                hidden />
+            </label>
+
+            <div class="upload__actions">
+              <button type="button" class="btn btn--primary" id="choose-btn">
+                <span>Upload a photo</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M12 3v13m0-13l-4 4m4-4l4 4M5 21h14"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+              </button>
+              <button type="button" class="btn btn--ghost" id="camera-btn">
+                <span>Take a picture</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M4 8h4l2-3h4l2 3h4v11H4z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linejoin="round" />
+                  <circle
+                    cx="12"
+                    cy="13"
+                    r="3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2" />
+                </svg>
+              </button>
+            </div>
+
+            <p class="fineprint">
+              Photos never leave your device. We use an image hash to pick a bird,
+              not a real neural net with opinions.
+            </p>
+          </form>
+        </div>
+
+        <aside class="sidebar">
+          <div class="card card--sticker">
+            <div class="sticker">NEW</div>
+            <h3>16 species of you</h3>
+            <p>
+              From the <em>Resplendent Quetzal</em> to the quietly terrifying
+              <em>Southern Cassowary</em>, every result is a real bird with real
+              field notes — and a personality reading you didn't ask for but
+              probably needed.
+            </p>
+          </div>
+          <div class="card card--spec">
+            <h4>How it works</h4>
+            <ol>
+              <li>Upload or take a photo.</li>
+              <li>Your image gets hashed into a species.</li>
+              <li>We fetch a real photograph from iNaturalist.</li>
+              <li>You get a card you can share or haunt your group chat with.</li>
+            </ol>
+          </div>
+          <div class="card card--rubber">
+            <div class="rubber-stamp">Peer Reviewed*</div>
+            <p class="fineprint">*by two very polite crows.</p>
+          </div>
+        </aside>
+      </section>
+
+      <!-- VIEW 2: Analyzing -->
+      <section class="view view--analyzing" data-view="analyzing" hidden>
+        <div class="analyzing__card">
+          <div class="analyzing__spinner">
+            <span>🪶</span>
+            <span>🦉</span>
+            <span>🪺</span>
+            <span>🦅</span>
+          </div>
+          <h2 class="analyzing__title">Consulting the flock…</h2>
+          <p class="analyzing__status" id="status-line">Warming up the oracle.</p>
+          <div class="progress">
+            <div class="progress__bar" id="progress-bar"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: Result -->
+      <section class="view view--result" data-view="result" hidden>
+        <div class="result__wrap">
+          <!-- Shareable card -->
+          <article class="birdcard" id="birdcard" aria-label="Your bird card">
+            <div class="birdcard__tape birdcard__tape--tl"></div>
+            <div class="birdcard__tape birdcard__tape--br"></div>
+
+            <header class="birdcard__head">
+              <div class="birdcard__brand">
+                <span class="birdcard__brand-mark">Bird<span>.</span>ai</span>
+                <span class="birdcard__brand-sub">Field Guide № <span id="card-num">047</span></span>
+              </div>
+              <div class="birdcard__archetype" id="card-archetype">The Showstopper</div>
+            </header>
+
+            <div class="birdcard__plate">
+              <div class="birdcard__photoframe">
+                <img id="card-photo" alt="" referrerpolicy="no-referrer" />
+                <div class="birdcard__photoframe-placeholder" id="card-placeholder">🪶</div>
+                <div class="birdcard__stamp" id="card-stamp">Specimen A</div>
+              </div>
+              <div class="birdcard__names">
+                <h2 class="birdcard__common" id="card-common">Scarlet Macaw</h2>
+                <p class="birdcard__sci" id="card-sci">Ara macao</p>
+                <p class="birdcard__vibe" id="card-vibe">Main character on a Tuesday.</p>
+              </div>
+            </div>
+
+            <dl class="birdcard__facts">
+              <div><dt>Habitat</dt><dd id="card-habitat">—</dd></div>
+              <div><dt>Diet</dt><dd id="card-diet">—</dd></div>
+              <div><dt>Wingspan</dt><dd id="card-wingspan">—</dd></div>
+              <div><dt>Field note</dt><dd id="card-fact">—</dd></div>
+            </dl>
+
+            <section class="birdcard__reading">
+              <h3>Which means you are…</h3>
+              <p id="card-personality">—</p>
+            </section>
+
+            <footer class="birdcard__foot">
+              <span class="birdcard__sealing">“Every bird is a mirror. This one is yours.”</span>
+              <span class="birdcard__credit" id="card-credit">photo: iNaturalist</span>
+            </footer>
+          </article>
+
+          <div class="result__actions">
+            <button class="btn btn--primary" id="share-btn">
+              <span>Share my bird</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M4 12v7h16v-7M12 3v13m0-13l-4 4m4-4l4 4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+            </button>
+            <button class="btn btn--ghost" id="download-btn">
+              <span>Download card</span>
+            </button>
+            <button class="btn btn--ghost" id="again-btn">
+              <span>Try another photo</span>
+            </button>
+          </div>
+
+          <p class="result__toast" id="toast" aria-live="polite"></p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p>
+        Made with 🪶 and affection. Real bird photos courtesy of
+        <a href="https://www.inaturalist.org/" target="_blank" rel="noopener"
+          >iNaturalist</a
+        >
+        and its contributing naturalists.
+      </p>
+    </footer>
+
+    <script src="birds.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
