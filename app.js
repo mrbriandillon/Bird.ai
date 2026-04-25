@@ -619,6 +619,18 @@
 
   function loadImageForCanvas(url) {
     if (!url) return Promise.resolve(null);
+    // Try the original URL first; if CORS blocks it (canvas needs the image
+    // to be CORS-clean to call toBlob), fall back to a CORS-friendly proxy.
+    return loadCorsImage(url).then((img) => {
+      if (img) return img;
+      const proxied =
+        "https://images.weserv.nl/?url=" +
+        encodeURIComponent(url.replace(/^https?:\/\//, ""));
+      return loadCorsImage(proxied);
+    });
+  }
+
+  function loadCorsImage(url) {
     return new Promise((res) => {
       const img = new Image();
       img.crossOrigin = "anonymous";
