@@ -1,6 +1,6 @@
 // Bird.ai — main app logic.
-// Flow: pick a file → hash it into a bird → fetch a real photo from iNaturalist
-// → render the result card → let the user share or download it.
+// Flow: pick a file → hash it into a bird → fetch a real photo (Wikipedia
+// first, iNaturalist fallback) → render the result card → share / download.
 
 (() => {
   "use strict";
@@ -102,7 +102,7 @@
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   // ---------- iNaturalist image fetching ----------
-  const PHOTO_CACHE_KEY = "birdai:photocache:v1";
+  const PHOTO_CACHE_KEY = "birdai:photocache:v2";
   const photoCache = loadPhotoCache();
 
   function loadPhotoCache() {
@@ -123,6 +123,19 @@
   async function fetchBirdPhoto(bird) {
     if (photoCache[bird.id]) return photoCache[bird.id];
 
+    // 1) Wikipedia lead image — curated by editors, usually the canonical
+    //    well-composed shot of the species. Wikimedia Commons sends CORS
+    //    headers, so the canvas renderer doesn't need a proxy either.
+    if (bird.wikipediaTitle) {
+      const wp = await fetchWikipediaPhoto(bird.wikipediaTitle);
+      if (wp) {
+        photoCache[bird.id] = wp;
+        savePhotoCache();
+        return wp;
+      }
+    }
+
+    // 2) iNaturalist as fallback.
     const endpoints = [
       bird.taxonId
         ? `https://api.inaturalist.org/v1/taxa/${bird.taxonId}`
@@ -148,6 +161,7 @@
           squareUrl: dp.square_url || dp.url || "",
           attribution: dp.attribution || "iNaturalist",
           wikipediaUrl: taxon.wikipedia_url || null,
+          source: "iNaturalist",
         };
         if (info.url) {
           photoCache[bird.id] = info;
@@ -159,6 +173,36 @@
       }
     }
     return null;
+  }
+
+  async function fetchWikipediaPhoto(title) {
+    try {
+      const res = await fetch(
+        `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(
+          title
+        )}`,
+        { headers: { Accept: "application/json" } }
+      );
+      if (!res.ok) return null;
+      const data = await res.json();
+      const orig = data.originalimage && data.originalimage.source;
+      const thumb = data.thumbnail && data.thumbnail.source;
+      const url = orig || thumb;
+      if (!url) return null;
+      const articleUrl =
+        (data.content_urls &&
+          data.content_urls.desktop &&
+          data.content_urls.desktop.page) ||
+        `https://en.wikipedia.org/wiki/${encodeURIComponent(title)}`;
+      return {
+        url,
+        attribution: `“${data.title}” on Wikipedia`,
+        wikipediaUrl: articleUrl,
+        source: "Wikipedia",
+      };
+    } catch (err) {
+      return null;
+    }
   }
 
   // ---------- Render the result card ----------
@@ -200,7 +244,7 @@
     img.classList.remove("is-loaded");
     img.removeAttribute("src");
     img.alt = `Photograph of a ${bird.commonName} (${bird.scientificName})`;
-    $("#card-credit").innerHTML = "photo: loading from iNaturalist…";
+    $("#card-credit").innerHTML = "photo: loading…";
 
     const photo = await fetchBirdPhoto(bird);
     if (photo && photo.url) {
@@ -208,7 +252,15 @@
       img.onload = () => img.classList.add("is-loaded");
       img.src = photo.url;
       const credit = photo.attribution.replace(/\(c\)/gi, "©");
-      $("#card-credit").innerHTML = `📷 ${escapeHtml(credit)} · via iNaturalist`;
+      const sourceLabel =
+        photo.source === "Wikipedia"
+          ? photo.wikipediaUrl
+            ? `via <a href="${escapeHtml(
+                photo.wikipediaUrl
+              )}" target="_blank" rel="noopener">Wikipedia</a>`
+            : "via Wikipedia"
+          : "via iNaturalist";
+      $("#card-credit").innerHTML = `📷 ${escapeHtml(credit)} · ${sourceLabel}`;
     } else {
       $(
         "#card-credit"
@@ -551,7 +603,9 @@
     ctx.font = "400 16px 'Space Grotesk', sans-serif";
     ctx.fillStyle = "#2b2b2b";
     const credit = currentPhoto
-      ? `photo: ${stripParens(currentPhoto.attribution)} · via iNaturalist`
+      ? `photo: ${stripParens(currentPhoto.attribution)} · via ${
+          currentPhoto.source || "iNaturalist"
+        }`
       : "bird.ai";
     ctx.textAlign = "right";
     ctx.fillText(truncate(credit, 72), W - 90, H - 86);
